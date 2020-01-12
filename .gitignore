@@ -1,0 +1,5 @@
+# ignore kdevelop files
+.kdev4/
+
+#ignore qt creator files
+CMakeLists.txt.user
