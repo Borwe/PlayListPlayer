@@ -53,6 +53,32 @@ BOOST_AUTO_TEST_CASE(testDateManagement){
     BOOST_TEST(d3->getPID()==-1);
 }
 
+BOOST_AUTO_TEST_CASE(testingVideoTypes){
+    Handlers::ShVideoType v1(new Handlers::VideoType("mkv"));
+    Handlers::ShVideoType v2(new Handlers::VideoType());
+    Handlers::ShVideoType v3(new Handlers::VideoType("mp4"));
+    Handlers::ShVideoType v4(new Handlers::VideoType("mp4"));
+
+    bool result=false;
+    //make sure they don't match
+    result=*v4==*v1;
+    BOOST_TEST(result==false);
+
+    result=*v4.get()==*v3.get();
+    //test that v4 and v3 are actually equal
+    BOOST_TEST(result);
+
+    //save v4 and make sure it's pid > 0
+    BOOST_TEST(v4->getPID()<0);
+    v4->save();
+    BOOST_TEST(v4->getPID()>=0);
+
+    //and then go ahead and remove element
+    v4->unSave();
+    //pid should now be less than 0
+    BOOST_TEST(v4->getPID()<0);
+}
+
 BOOST_AUTO_TEST_CASE(testingGettingFiles){
    Handlers::SharedFilesVector files=  Handlers::getFilesInDir();
    //test no null object passed

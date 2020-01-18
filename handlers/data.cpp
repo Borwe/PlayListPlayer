@@ -32,6 +32,12 @@ namespace DBAccess {
     };
     std::shared_mutex DatePID::m_lock;
     long DatePID::p_id=0;
+    struct VideoTypePID{
+        static std::shared_mutex m_lock;
+        static long p_id;
+    };
+    std::shared_mutex VideoTypePID::m_lock;
+    long VideoTypePID::p_id=0;
 
     //function to handle incremeneting PID's
     template<typename PID>
@@ -58,7 +64,7 @@ namespace DBAccess {
      *Pass a Type of Class, of which is PID type is a clas of type [Class]PID
      */
     template<typename Class,typename PID>
-    long getMaxPID(){
+    void getMaxPID(){
         Wt::Dbo::Transaction t(*session);
         Wt::Dbo::collection<Wt::Dbo::ptr<Class>> collection=session->find<Class>().orderBy("pid").resultList();
         //move to last and get it's id
@@ -89,6 +95,7 @@ namespace DBAccess {
             //try map to Date table
             try {
                 session->mapClass<Handlers::Date>("date_table");
+                session->mapClass<Handlers::VideoType>("video_types");
 
             } catch (Wt::Dbo::Exception &ex) {
     //            std::cerr<<"\nERROR: "<<ex.what();
@@ -105,6 +112,7 @@ namespace DBAccess {
 
             //get the max pid of objects mapped
             getMaxPID<Handlers::Date,DatePID>();
+            getMaxPID<Handlers::VideoType,VideoTypePID>();
 
 
         },session);
@@ -249,4 +257,30 @@ void Handlers::Date::save(){
 
 void Handlers::Date::unSave(){
     DBAccess::startDelete(*this);
+}
+
+Handlers::VideoType::VideoType():pid(-1){
+
+}
+
+Handlers::VideoType::VideoType(const std::string &&type):pid(-1){
+    this->type=type;
+}
+
+Handlers::VideoType::VideoType(const std::string &type):pid(-1){
+    this->type=type;
+}
+
+template<typename Action>
+void Handlers::VideoType::persist(Action &a){
+    Wt::Dbo::field(a,pid,"pid");
+    Wt::Dbo::field(a,this->type,"type");
+}
+
+void Handlers::VideoType::save(){
+
+}
+
+void Handlers::VideoType::unSave(){
+
 }

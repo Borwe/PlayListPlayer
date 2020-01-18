@@ -10,13 +10,57 @@
 
 namespace Handlers {
     class Date;
-    //for returning a shared version of Date
+    class VideoType;
+    //for returning a shared versions
     using ShDate=std::shared_ptr<Date>;
+    using ShVideoType=std::shared_ptr<VideoType>;
 
     class DBMethods{
     public:
         virtual void setPID(long id){}
         virtual long getPID() const{}
+        virtual void save(){}
+        virtual void unSave(){}
+    };
+
+    class VideoType:DBMethods{
+    private:
+        long pid;
+        std::string type;
+    public:
+        VideoType(const std::string &&type);
+        VideoType(const std::string &type);
+        VideoType();
+
+        //for DB
+        template<class Action>
+        void persist(Action &a);
+
+
+        void save()override;
+        void unSave() override;
+
+        //setters
+        void setPID(long pid)override{
+            this->pid=pid;
+        }
+
+        //getters
+        long getPID()const override{
+            return pid;
+        }
+        std::string getType()const{
+            return type;
+        }
+
+        bool operator==(VideoType &v1){
+            if(v1.getPID()==getPID()){
+                if(v1.getType()==getType()){
+                    return true;
+                }
+            }
+            return false;
+        }
     };
 
     class Date:DBMethods {
@@ -48,12 +92,12 @@ namespace Handlers {
          * @brief save
          * @return
          */
-        void save();
+        void save()override;
         /**
          * @brief unSave
          * Used for removing saved item from the database
          */
-        void unSave();
+        void unSave()override;
 
 
 
