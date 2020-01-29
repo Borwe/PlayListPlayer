@@ -21,7 +21,7 @@ target_link_libraries(handlers PRIVATE ${Boost_LIBRARIES})
 
 #add poco framework to get date support
 if(NOT Poco_DIR)
-    message(FATAL_ERROR "Please select the directory with PocoConfig.cmake here on variable POCO_CMAKE_DIR")
+    message(FATAL_ERROR "No place selected to Poco_DIR variable containing PocoConfig.cmake")
 endif()
 include(${Poco_DIR}/PocoConfig.cmake)
 find_package(Poco COMPONENTS Foundation REQUIRED)
@@ -32,7 +32,7 @@ target_link_libraries(handlers PRIVATE Poco::Foundation )
 target_include_directories(handlers PRIVATE Poco::Foundation )
 
 #add wtdbo for database stuff
-if(NOT Wt_DIR)
+if(NOT ${Wt_DIR})
     message(FATAL_ERROR "Please make sure you pass Wt_DIR with directory that contains wt-config.cmake")
 endif()
 #find it

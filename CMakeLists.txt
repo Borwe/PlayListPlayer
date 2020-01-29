@@ -48,10 +48,10 @@ target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets)
 #for multithreading on linux
 target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
 #for using boost library
-set(Boost_NO_BOOST_CMAKE ON)
+#set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.65 COMPONENTS filesystem REQUIRED)
 if(NOT Boost_FOUND)
-    message(FATAL_ERROR "It appears no valid BOOST_ROOT was passed, please retry")
+    message(FATAL_ERROR "It appears no valid Boost_DIR was passed, please retry")
 else()
     target_include_directories(PlaylistPlayer PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_libraries(PlaylistPlayer PRIVATE ${Boost_LIBRARIES})
