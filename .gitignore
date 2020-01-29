@@ -2,5 +2,5 @@
 .kdev4/
 
 #ignore qt creator files
-CMakeLists.txt.user
+CMakeLists.txt.user*
 build/

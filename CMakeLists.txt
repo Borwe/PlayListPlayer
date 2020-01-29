@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 project(PlaylistPlayer LANGUAGES CXX)
 
@@ -48,13 +48,15 @@ target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets)
 #for multithreading on linux
 target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
 #for using boost library
-#set(Boost_NO_BOOST_CMAKE ON)
+#setup boost_cmake_loc variable to be used
+set(Boost_NO_BOOST_CMAKE ON)
+message("BOOST_ROOT =>" ${BOOST_ROOT})
 find_package(Boost 1.65 COMPONENTS filesystem REQUIRED)
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "It appears no valid Boost_DIR was passed, please retry")
 else()
-    target_include_directories(PlaylistPlayer PRIVATE ${Boost_INCLUDE_DIRS})
-    target_link_libraries(PlaylistPlayer PRIVATE ${Boost_LIBRARIES})
+    target_include_directories(PlaylistPlayer PRIVATE Boost::filesystem)
+    target_link_libraries(PlaylistPlayer PRIVATE Boost::filesystem)
 endif()
 
 #add handlerslibrary

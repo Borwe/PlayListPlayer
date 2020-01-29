@@ -32,7 +32,7 @@ target_link_libraries(handlers PRIVATE Poco::Foundation )
 target_include_directories(handlers PRIVATE Poco::Foundation )
 
 #add wtdbo for database stuff
-if(NOT ${Wt_DIR})
+if(NOT Wt_DIR)
     message(FATAL_ERROR "Please make sure you pass Wt_DIR with directory that contains wt-config.cmake")
 endif()
 #find it

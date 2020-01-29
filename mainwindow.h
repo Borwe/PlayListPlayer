@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QVector>
 #include <mutex>
+#include <functional>
 #include <QProgressBar>
 
 QT_BEGIN_NAMESPACE
