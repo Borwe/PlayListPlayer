@@ -44,6 +44,9 @@ namespace Handlers {
         void setPID(long pid)override{
             this->pid=pid;
         }
+        void setType(std::string &type){
+            this->type=type;
+        }
 
         //getters
         long getPID()const override{
@@ -52,6 +55,7 @@ namespace Handlers {
         std::string getType()const{
             return type;
         }
+        static std::vector<VideoType> getAll();
 
         bool operator==(VideoType &v1){
             if(v1.getPID()==getPID()){

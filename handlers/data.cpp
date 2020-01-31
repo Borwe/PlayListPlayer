@@ -2,6 +2,7 @@
 #include <Poco/DateTime.h>
 #include <iostream>
 #include <algorithm>
+#include <thread>
 
 //for db
 #include <Wt/Dbo/Session.h>
@@ -133,10 +134,26 @@ namespace DBAccess {
 
 
             DBAccess::incrementPID<PID>();
-            uObj->setPID(DBAccess::getPID<DBAccess::DatePID>());
+            uObj->setPID(DBAccess::getPID<PID>());
             auto ptr2=session->add(std::move(uObj));
             obj.setPID(ptr2->getPID());
             ptr2.purge();
+    }
+
+    /**
+     *Used for getting all elements of a specific type from DB
+     */
+    template<typename Class>
+    void getAll(std::vector<Class> &vecStorage){
+        DBAccess::ShSession session=getSession();
+        Wt::Dbo::Transaction trans(*session);
+
+        //now create query to get all objects of given type
+        Wt::Dbo::collection<Wt::Dbo::ptr<Class>> results=session->find<Class>();
+        std::for_each(results.begin(),results.end(),[&vecStorage](Wt::Dbo::ptr<Class> &type){
+           //store all the values into vecStorage
+           vecStorage.push_back(*type.get());
+        });
     }
 
     /**
@@ -273,14 +290,70 @@ Handlers::VideoType::VideoType(const std::string &type):pid(-1){
 
 template<typename Action>
 void Handlers::VideoType::persist(Action &a){
-    Wt::Dbo::field(a,pid,"pid");
+    Wt::Dbo::field(a,this->pid,"pid");
     Wt::Dbo::field(a,this->type,"type");
 }
 
 void Handlers::VideoType::save(){
+    //if never saved, do this
+    if(this->pid<0){
+        //first check that no such object exists in the database of similar type before going ahead and adding
+        DBAccess::ShSession session=DBAccess::getSession();
+        Wt::Dbo::Transaction trans(*session);
+        Wt::Dbo::collection<Wt::Dbo::ptr<VideoType>> collec=session->find<VideoType>().where("type=?").bind(this->type);
+        if(collec.size()>0){
+            throw std::runtime_error("Found a Type of similar type, won't save");
+            return;
+        }
+        try{
+            DBAccess::startSaving<Handlers::VideoType,DBAccess::VideoTypePID>(*this,std::make_unique<Handlers::VideoType>(this->type));
+        }catch(std::exception &ex){
+            std::cout<<"Error occured: "<<ex.what()<<"\n";
+        }
+    }else{
+        //otherwise then use the update since already saved once.
+        std::function func=[](Wt::Dbo::ptr<Handlers::VideoType> &ptr,Handlers::VideoType &video){
+            ptr.modify()->setType(video.type);
+        };
+        DBAccess::startUpdating<Handlers::VideoType>(*this,func);
+    }
 
 }
 
+/**
+ * @brief Handlers::VideoType::unSave
+ * Remove VideoType from database
+ */
 void Handlers::VideoType::unSave(){
+    DBAccess::startDelete(*this);
+}
 
+/**
+ * @brief Handlers::VideoType::getAll
+ * @return A vector containing all elements
+ * repopulates DB with MP4,MKV AND 3GP if none existed
+ * in the database
+ */
+std::vector<Handlers::VideoType> Handlers::VideoType::getAll(){
+    std::vector<VideoType> resultToReturn;
+    DBAccess::getAll<VideoType>(resultToReturn);
+
+    if(resultToReturn.size()<3){
+        //if resultToReturn is less than 3, then populate database with default objects
+        //of MP4,MKV,and 3GP
+        VideoType mp4("mp4");
+        VideoType mkv("mkv");
+        VideoType g3p("3gp");
+
+        mp4.save();
+        mkv.save();
+        g3p.save();
+
+        //create the resultToReturn just in case
+        resultToReturn.clear();
+        //repopulate it
+        DBAccess::getAll<VideoType>(resultToReturn);
+    }
+    //return it
+    return resultToReturn;
 }

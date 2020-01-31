@@ -58,26 +58,40 @@ BOOST_AUTO_TEST_CASE(testingVideoTypes){
     Handlers::ShVideoType v1(new Handlers::VideoType("mkv"));
     Handlers::ShVideoType v2(new Handlers::VideoType());
     Handlers::ShVideoType v3(new Handlers::VideoType("mp4"));
-    Handlers::ShVideoType v4(new Handlers::VideoType("mp4"));
+    //this is the one to actually use for saving/and deleting
+    Handlers::ShVideoType v4(new Handlers::VideoType("flv"));
+    Handlers::ShVideoType v5(new Handlers::VideoType("flv"));
 
     bool result=false;
     //make sure they don't match
     result=*v4==*v1;
     BOOST_TEST(result==false);
 
-    result=*v4.get()==*v3.get();
+    result=*v4.get()==*v5.get();
     //test that v4 and v3 are actually equal
     BOOST_TEST(result);
+
+    //taste that DB contains no elements of VideoType
+    int count=Handlers::VideoType::getAll().size();
+    BOOST_TEST(count>=3);
 
     //save v4 and make sure it's pid > 0
     BOOST_TEST(v4->getPID()<0);
     v4->save();
     BOOST_TEST(v4->getPID()>=0);
-
-    //and then go ahead and remove element
+    //now check that counts on database is greater than count
+    BOOST_TEST(Handlers::VideoType::getAll().size()>count);
+    //and then go ahead and delete the fake v4 item
     v4->unSave();
-    //pid should now be less than 0
-    BOOST_TEST(v4->getPID()<0);
+    //test that the count is now back to normal
+    BOOST_TEST(Handlers::VideoType::getAll().size()==count);
+
+    //try save v3 but it should fail, since mp3 is auto generated
+    try{
+        v3->save();
+    }catch(std::exception &ex){
+    }
+    BOOST_TEST(Handlers::VideoType::getAll().size()==count);
 }
 
 BOOST_AUTO_TEST_CASE(testingGettingFiles){
