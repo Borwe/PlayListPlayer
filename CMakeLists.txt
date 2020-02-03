@@ -34,6 +34,11 @@ if(ANDROID)
     mainwindow.ui
     handlers.cpp
     handlers.h
+
+	#for the types dialog
+	typesshow.cpp
+	typesshow.h
+	typesshow.ui
   )
 else()
   add_executable(PlaylistPlayer
@@ -41,6 +46,11 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+
+	#for the types dialog
+	typesshow.cpp
+	typesshow.h
+	typesshow.ui
   )
 endif()
 
@@ -62,3 +72,4 @@ endif()
 #add handlerslibrary
 add_subdirectory(${CMAKE_SOURCE_DIR}/handlers)
 target_link_libraries(PlaylistPlayer PRIVATE handlers)
+target_include_directories(PlaylistPlayer PRIVATE handlers)

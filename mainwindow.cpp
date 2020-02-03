@@ -6,6 +6,9 @@
 #include <atomic>
 #include <iostream>
 
+//for showing types dialog
+#include <typesshow.h>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -69,4 +72,14 @@ void MainWindow::on_actionExit_triggered()
     qDebug() <<"Exiting application\n";
     //futureLoads.~future();
     std::exit(0);
+}
+
+/**
+ * @brief MainWindow::on_actionAdd_Types_triggered
+ */
+void MainWindow::on_actionAdd_Types_triggered()
+{
+    TypesShow *typs=new TypesShow(this);
+    typs->setModal(true);
+    typs->show();
 }
