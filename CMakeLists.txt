@@ -39,6 +39,11 @@ if(ANDROID)
 	typesshow.cpp
 	typesshow.h
 	typesshow.ui
+
+	#for handling single inputs
+	singleinput.h
+	singleinput.cpp
+	singleinput.ui
   )
 else()
   add_executable(PlaylistPlayer
@@ -51,6 +56,11 @@ else()
 	typesshow.cpp
 	typesshow.h
 	typesshow.ui
+
+	#for handling single inputs
+	singleinput.h
+	singleinput.cpp
+	singleinput.ui
   )
 endif()
 

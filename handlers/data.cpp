@@ -357,3 +357,32 @@ std::vector<Handlers::VideoType> Handlers::VideoType::getAll(){
     //return it
     return resultToReturn;
 }
+
+Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string &type){
+    //if type is null, then do nothing
+    if(type.empty()){
+        std::cout<<"Doing nothing\n";
+        return std::make_shared<VideoType>("yack");
+    }
+
+    // get session
+    DBAccess::ShSession session=DBAccess::getSession();
+    Wt::Dbo::Transaction trans(*session);
+
+
+    try{
+        //query for object of given type
+        Wt::Dbo::ptr<Handlers::VideoType> vidType=session->find<Handlers::VideoType>("where type=?")
+                .bind(type.c_str());
+        ShVideoType vid=std::make_shared<VideoType>();
+        vid->type=vidType->type;
+        vid->pid=vidType->pid;
+
+        return vid;
+    }catch(std::exception &err){
+
+        return nullptr;
+    }
+
+
+}

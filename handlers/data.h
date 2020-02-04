@@ -57,6 +57,8 @@ namespace Handlers {
         }
         static std::vector<VideoType> getAll();
 
+        static ShVideoType getVideoTypeByType(const std::string &type);
+
         bool operator==(VideoType &v1){
             if(v1.getPID()==getPID()){
                 if(v1.getType()==getType()){
