@@ -83,3 +83,8 @@ void MainWindow::on_actionAdd_Types_triggered()
     typs->setModal(true);
     typs->show();
 }
+
+void MainWindow::on_actionShow_MultiMedia_Types_triggered()
+{
+    on_actionAdd_Types_triggered();
+}

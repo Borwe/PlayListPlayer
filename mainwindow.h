@@ -25,6 +25,8 @@ private slots:
 
     void on_actionAdd_Types_triggered();
 
+    void on_actionShow_MultiMedia_Types_triggered();
+
 private:
     Ui::MainWindow *ui;
 
