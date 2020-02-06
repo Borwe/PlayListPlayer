@@ -24,7 +24,6 @@ Handlers::SharedFilesVector Handlers::getFilesOfMultimedia(const SharedFilesVect
 
     //check that all files in types match that type, if not the don't add them to the list to be returned
     for(Handlers::FilePath &path: *filesInDir){
-        std::cout<<"EXTENTION: "<<path.extension().c_str()<<"\n";
         for(Handlers::VideoType &type:types){
             if(path.extension()==(std::string(".")+type.getType())){
                 files->push_back(path);

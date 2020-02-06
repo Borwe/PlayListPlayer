@@ -23,6 +23,7 @@ namespace Handlers {
         virtual void unSave(){}
     };
 
+
     class VideoType:DBMethods{
     private:
         long pid;
@@ -136,6 +137,82 @@ namespace Handlers {
         }
     };
 
+    class Video:DBMethods{
+    private:
+        long pid;
+        std::string location;
+        std::string name;
+        VideoType type;
+        Date date;
+        long long seekTime;
+
+        //for the DB access
+        long videoTypeID;
+        long dateID;
+
+    public:
+        Video(const std::string &location,const std::string name,
+              const VideoType &type,const Date &date,
+              const long long seekTime);
+        Video();
+
+        void save()override;
+        void unSave()override;
+
+        //For DB
+        template<typename Action>
+        void persist(Action &a);
+
+        //setters
+        void setPID(const long pid)override{
+            this->pid=pid;
+        }
+
+        void setLocation(const std::string &location){
+            this->location=location;
+        }
+
+        void setName(const std::string &name){
+            this->name=name;
+        }
+
+        void setType(const VideoType &type){
+            this->type=type;
+        }
+
+        void setDate(const Date &date){
+            this->date=date;
+        }
+
+        void setSeek(const long long &seek){
+            this->seekTime=seek;
+        }
+
+        //getters
+        long getPID()const override{
+            return pid;
+        }
+
+        std::string getLocation()const{
+            return this->location;
+        }
+
+        std::string getName()const{
+            return this->name;
+        }
+
+        VideoType getVideoType()const{
+            return this->type;
+        }
+
+        Date getDate()const{
+            return this->date;
+        }
+
+        long long getSeekTime()const{
+            return this->seekTime;
+        }
+    };
 }
 
 #endif // DATA_H

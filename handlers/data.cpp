@@ -39,6 +39,12 @@ namespace DBAccess {
     };
     std::shared_mutex VideoTypePID::m_lock;
     long VideoTypePID::p_id=0;
+    struct VideoPID{
+        static std::shared_mutex m_lock;
+        static long p_id;
+    };
+    std::shared_mutex VideoPID::m_lock;
+    long VideoPID::p_id=0;
 
     //function to handle incremeneting PID's
     template<typename PID>
@@ -97,6 +103,7 @@ namespace DBAccess {
             try {
                 session->mapClass<Handlers::Date>("date_table");
                 session->mapClass<Handlers::VideoType>("video_types");
+                session->mapClass<Handlers::Video>("videos");
 
             } catch (Wt::Dbo::Exception &ex) {
     //            std::cerr<<"\nERROR: "<<ex.what();
@@ -107,14 +114,14 @@ namespace DBAccess {
             try {
                 session->createTables();
             } catch (Wt::Dbo::Exception &ex) {
-    //            std::cerr<<"\nERROR: "<<ex.what();
+                std::cerr<<"\nERROR: "<<ex.what();
             }
 
 
             //get the max pid of objects mapped
             getMaxPID<Handlers::Date,DatePID>();
             getMaxPID<Handlers::VideoType,VideoTypePID>();
-
+            getMaxPID<Handlers::Video,VideoPID>();
 
         },session);
 
@@ -384,5 +391,25 @@ Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string 
         return nullptr;
     }
 
+
+}
+
+Handlers::Video::Video(){}
+
+template<typename Action>
+void Handlers::Video::persist(Action &a){
+    Wt::Dbo::field(a,pid,"pid");
+    Wt::Dbo::field(a,name,"name");
+    Wt::Dbo::field(a,location,"location");
+    Wt::Dbo::field(a,seekTime,"seekTime");
+    Wt::Dbo::field(a,videoTypeID,"videoTypesID");
+    Wt::Dbo::field(a,dateID,"dateID");
+}
+
+void Handlers::Video::save(){
+
+}
+
+void Handlers::Video::unSave(){
 
 }
