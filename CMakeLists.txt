@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Gui REQUIRED)
 
 if(ANDROID)
   add_library(PlaylistPlayer SHARED
@@ -64,7 +64,8 @@ else()
   )
 endif()
 
-target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets)
+target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
+target_include_directories(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
 #for multithreading on linux
 target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
 #for using boost library

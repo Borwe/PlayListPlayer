@@ -27,6 +27,10 @@ private slots:
 
     void on_actionShow_MultiMedia_Types_triggered();
 
+    void on_actionCreate_Open_New_PlayList_triggered();
+
+    void on_selected_file(const QString &name);
+
 private:
     Ui::MainWindow *ui;
 

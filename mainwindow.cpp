@@ -4,10 +4,13 @@
 #include <future>
 #include <mutex>
 #include <atomic>
+#include <QFileDialog>
 #include <iostream>
+#include <handlers.h>
 
 //for showing types dialog
 #include <typesshow.h>
+#include <QErrorMessage>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -87,4 +90,46 @@ void MainWindow::on_actionAdd_Types_triggered()
 void MainWindow::on_actionShow_MultiMedia_Types_triggered()
 {
     on_actionAdd_Types_triggered();
+}
+
+void MainWindow::on_selected_file(const QString &name){
+    //turn name of the string to normal std::string
+    std::string dirLocation(name.toStdString());
+
+    auto files=Handlers::getFilesInDir(dirLocation);
+
+    //if folder empty, prompt user to select another folder
+    if(files->empty()){
+        QErrorMessage *error=new QErrorMessage(this);
+        error->setModal(true);
+        error->showMessage("Please select a folder with something in it\nThe one selected is <b>Empty</b>");
+        error->show();
+    }else{
+
+        //if folder contains no files with selected type,prompt user to add relevant types
+        files=Handlers::getFilesOfMultimedia(files);
+        if(files->empty()){
+
+            QErrorMessage *error=new QErrorMessage(this);
+            error->setModal(true);
+            error->showMessage("No valid multimedia type detected <b>Please add more</b>");
+            error->show();
+        }
+    }
+
+}
+
+void MainWindow::on_actionCreate_Open_New_PlayList_triggered()
+{
+    //open folder for choosing files
+    QFileDialog *fileSearch=new QFileDialog(this);
+    fileSearch->setDirectory("./");
+    //so that we only use directories
+    fileSearch->setFileMode(QFileDialog::FileMode::DirectoryOnly);
+
+    connect(fileSearch,SIGNAL(fileSelected(const QString &)),this,SLOT(on_selected_file(const QString &)));
+
+    fileSearch->setModal(true);
+    fileSearch->show();
+
 }

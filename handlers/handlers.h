@@ -37,6 +37,13 @@ namespace Handlers
     }
 
     SharedFilesVector getFilesInDir(const std::string &directory="./");
+    /**
+     * @brief getFilesOfMultimedia
+     * @param filesInDir
+     * @return files that match an extention that the user wants to be supported for playing
+     * default is mp4,mkv,3gp
+     */
+    SharedFilesVector getFilesOfMultimedia(SharedFilesVector filesInDir);
 
     /**
      * @brief The PlayerHandler class

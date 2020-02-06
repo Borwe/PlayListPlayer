@@ -1,4 +1,5 @@
 #include <handlers.h>
+#include <data.h>
 
 Handlers::SharedFilesVector Handlers::getFilesInDir(const std::string &directory){
     //create a path mapping to the directory
@@ -15,6 +16,23 @@ Handlers::SharedFilesVector Handlers::getFilesInDir(const std::string &directory
         filesInDIr->push_back(p);
     }
     return filesInDIr;
+}
+
+Handlers::SharedFilesVector Handlers::getFilesOfMultimedia(const SharedFilesVector filesInDir){
+    SharedFilesVector files=std::make_shared<Handlers::FilesVector>();
+    std::vector<Handlers::VideoType> types=Handlers::VideoType::getAll();
+
+    //check that all files in types match that type, if not the don't add them to the list to be returned
+    for(Handlers::FilePath &path: *filesInDir){
+        std::cout<<"EXTENTION: "<<path.extension().c_str()<<"\n";
+        for(Handlers::VideoType &type:types){
+            if(path.extension()==(std::string(".")+type.getType())){
+                files->push_back(path);
+            }
+        }
+    }
+
+    return files;
 }
 
 Handlers::PlayerHandler::PlayerHandler(){
