@@ -926,19 +926,6 @@ seek: long(time player last reached while playing<y:LabelModel><y:ErdAttributesN
         </node>
         <node id="n6::n2">
           <data key="d6">
-            <y:GenericNode configuration="com.yworks.entityRelationship.small_entity">
-              <y:Geometry height="40.0" width="80.0" x="1013.0976105057209" y="201.0"/>
-              <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
-              <y:BorderStyle color="#000000" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="69.373046875" x="5.3134765625" xml:space="preserve" y="11.015625">MultiMedia<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-              <y:StyleProperties>
-                <y:Property class="java.lang.Boolean" name="y.view.ShadowNodePainter.SHADOW_PAINTING" value="true"/>
-              </y:StyleProperties>
-            </y:GenericNode>
-          </data>
-        </node>
-        <node id="n6::n3">
-          <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
               <y:Geometry height="112.65678087343085" width="545.333333333333" x="1370.861887678109" y="67.67327668393779"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
@@ -954,7 +941,7 @@ stop(): stops playing Multimedia, returns time of stop, set's seek time of Multi
             </y:GenericNode>
           </data>
         </node>
-        <node id="n6::n4">
+        <node id="n6::n3">
           <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
               <y:Geometry height="83.07031250000011" width="178.66666666666652" x="1675.7169943351441" y="210.33005755736863"/>
@@ -969,7 +956,7 @@ type:String hold type info<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:Labe
             </y:GenericNode>
           </data>
         </node>
-        <node id="n6::n5">
+        <node id="n6::n4">
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="30.0" x="1834.4162019509454" y="210.33005755736866"/>
@@ -3098,16 +3085,6 @@ type function<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel
         </y:GenericEdge>
       </data>
     </edge>
-    <edge id="n6::e0" source="n6::n2" target="n6::n1">
-      <data key="d10">
-        <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#000000" type="line" width="1.0"/>
-          <y:Arrows source="none" target="standard"/>
-          <y:BendStyle smoothed="false"/>
-        </y:PolyLineEdge>
-      </data>
-    </edge>
     <edge id="e5" source="n4" target="n8">
       <data key="d10">
         <y:GenericEdge configuration="com.yworks.edge.framed">
@@ -3928,7 +3905,7 @@ type function<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n6::e1" source="n6::n1" target="n6::n4">
+    <edge id="n6::e0" source="n6::n1" target="n6::n3">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
