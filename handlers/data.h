@@ -87,6 +87,8 @@ namespace Handlers {
         template<typename Action>
         void persist(Action &a);
 
+        static ShDate getDateByDate(const Date &date);
+
         /**
          * @brief operator ==
          * @param d2
@@ -142,8 +144,6 @@ namespace Handlers {
         long pid;
         std::string location;
         std::string name;
-        VideoType type;
-        Date date;
         long long seekTime;
 
         //for the DB access
@@ -151,8 +151,7 @@ namespace Handlers {
         long dateID;
 
     public:
-        Video(const std::string &location,const std::string name,
-              const VideoType &type,const Date &date,
+        Video(const std::string &location,const std::string &name,
               const long long seekTime);
         Video();
 
@@ -177,11 +176,11 @@ namespace Handlers {
         }
 
         void setType(const VideoType &type){
-            this->type=type;
+            this->videoTypeID=type.getPID();
         }
 
         void setDate(const Date &date){
-            this->date=date;
+            this->dateID=date.getPID();
         }
 
         void setSeek(const long long &seek){
@@ -201,12 +200,12 @@ namespace Handlers {
             return this->name;
         }
 
-        VideoType getVideoType()const{
-            return this->type;
+        long getVideoTypeID()const{
+            return this->videoTypeID;
         }
 
-        Date getDate()const{
-            return this->date;
+        long getDateID()const{
+            return this->dateID;
         }
 
         long long getSeekTime()const{

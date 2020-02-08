@@ -3,6 +3,8 @@
 #include <iostream>
 #include <algorithm>
 #include <thread>
+#include <boost/filesystem.hpp>
+#include <future>
 
 //for db
 #include <Wt/Dbo/Session.h>
@@ -114,7 +116,7 @@ namespace DBAccess {
             try {
                 session->createTables();
             } catch (Wt::Dbo::Exception &ex) {
-                std::cerr<<"\nERROR: "<<ex.what();
+                std::cerr<<"\nCREATION_ERROR: "<<ex.what();
             }
 
 
@@ -242,6 +244,24 @@ Handlers::Date::Date(const Date *d):pid(-1){
     this->year=d->year;
     this->month=d->month;
     this->pid=d->pid;
+}
+
+Handlers::ShDate Handlers::Date::getDateByDate(const Date &date){
+    DBAccess::ShSession session=DBAccess::getSession();
+    Wt::Dbo::Transaction trans(*session);
+
+    //now query for date object with similar properties
+    Wt::Dbo::ptr<Date> dateDB=session->find<Date>().where("year=?")
+            .bind(date.year).where("month=?")
+            .bind(date.month).where("day=?")
+            .bind(date.day).resultValue();
+
+    ShDate toReturn=std::make_shared<Date>();
+    toReturn->setDay(dateDB->getMonth());
+    toReturn->setMonth(dateDB->month);
+    toReturn->setYear(dateDB->year);
+    toReturn->setPID(dateDB->getPID());
+    return toReturn;
 }
 
 void Handlers::Date::setPID(long pid){
@@ -394,7 +414,67 @@ Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string 
 
 }
 
-Handlers::Video::Video(){}
+Handlers::Video::Video():dateID(-1),videoTypeID(-1){}
+
+Handlers::Video::Video(const std::string &location,
+                       const std::string &name,
+                       const long long seekTime)
+    :location(location),name(name),seekTime(seekTime),pid(-1),
+    dateID(-1),videoTypeID(-1){
+    //now setup the video type by location's extention
+    boost::filesystem::path loc(location);
+    /**
+     * @brief function_getVideoTypeAccess
+     * Get the videotype from the ones stored in the database, returning it's pid,
+     * for mapping with this ones
+     */
+    auto function_getVideoTypeAccess=[&loc](){
+        std::string extenstion=loc.extension().c_str();
+        std::string actual_extention="";
+        int start=0;
+        std::for_each(extenstion.cbegin(),extenstion.cend(),
+                      [&actual_extention,&start](char val){
+            if(start!=0){
+                actual_extention+=val;
+            }
+            ++start;
+        });
+        std::cout<<"EXTENTION: "<<actual_extention<<"\n";
+        //now search on db for type with given extention.
+        int id=-1;
+        auto vidType=Handlers::VideoType::getVideoTypeByType(actual_extention);
+        if(vidType!=nullptr){
+            id=vidType->getPID();
+        }
+        return id;
+    };
+
+    //also get the Date of this video being added to app
+    auto function_getDateAccess=[](){
+        Date date;
+        int id=-1;
+        try{
+            ShDate dateGotten=Handlers::Date::getDateByDate(date);
+            id=dateGotten->getPID();
+        }catch(std::exception &ex){
+            std::cerr<<"THIS SOME BULLSHIT: "<<ex.what()<<"\n";
+        }
+        //will reach here if no such date exists, so that means we save
+        //our own
+        if(id==-1){
+            date.save();
+            id=date.getPID();
+        }
+        return id;
+    };
+
+    int videoTypeID=function_getVideoTypeAccess();
+    int dateID=function_getDateAccess();
+
+    //set the dates of this variable up now
+    this->videoTypeID=videoTypeID;
+    this->dateID=dateID;
+}
 
 template<typename Action>
 void Handlers::Video::persist(Action &a){
