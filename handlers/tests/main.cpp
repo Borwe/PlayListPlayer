@@ -99,6 +99,19 @@ BOOST_AUTO_TEST_CASE(testingVideos){
     //see that video has valid type and also a date id.
     BOOST_TEST(vid1.getVideoTypeID()!=-1);
     BOOST_TEST(vid1.getDateID()!=-1);
+
+    //test getting count of objects, should be none now
+    int count=Handlers::Video::countItems();
+    BOOST_TEST(count==0);
+
+    //save video to DB
+    vid1.save();
+    count=Handlers::Video::countItems();
+    BOOST_TEST(count==1);
+
+    vid1.unSave();
+    count=Handlers::Video::countItems();
+    BOOST_TEST(count==0);
 }
 
 BOOST_AUTO_TEST_CASE(testingGettingFiles){

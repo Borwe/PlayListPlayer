@@ -153,14 +153,15 @@ namespace Handlers {
     public:
         Video(const std::string &location,const std::string &name,
               const long long seekTime);
+        Video(const Video *video);
         Video();
-
-        void save()override;
-        void unSave()override;
 
         //For DB
         template<typename Action>
         void persist(Action &a);
+        void save()override;
+        void unSave()override;
+        static long countItems();
 
         //setters
         void setPID(const long pid)override{

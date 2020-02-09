@@ -166,6 +166,21 @@ namespace DBAccess {
     }
 
     /**
+     * Used to count the number of items of a
+     * specific type in the database
+     */
+    template<typename Class>
+    long getCount(const std::string tableName){
+        DBAccess::ShSession session=getSession();
+        Wt::Dbo::Transaction trans(*session);
+
+        std::string query="select count(1) from "+tableName;
+
+        //now do the query
+        return session->query<int>(query.c_str());
+    }
+
+    /**
      * Pass obj you want to update from database, with a function that
      * shows how to update the pointer to the object in the database
      */
@@ -416,6 +431,15 @@ Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string 
 
 Handlers::Video::Video():dateID(-1),videoTypeID(-1){}
 
+Handlers::Video::Video(const Video *video){
+    this->location=video->location;
+    this->name=video->name;
+    this->seekTime=video->seekTime;
+    this->pid=video->pid;
+    this->dateID=video->dateID;
+    this->videoTypeID=video->videoTypeID;
+}
+
 Handlers::Video::Video(const std::string &location,
                        const std::string &name,
                        const long long seekTime)
@@ -487,9 +511,28 @@ void Handlers::Video::persist(Action &a){
 }
 
 void Handlers::Video::save(){
-
+    //check if saved before, if not meaning pid==-1
+    if(pid<0){
+        DBAccess::startSaving<Handlers::Video,DBAccess::VideoPID>(*this,
+                    std::make_unique<Handlers::Video>(this));
+    }else{
+        //do the updating part here
+        std::function func=[](Wt::Dbo::ptr<Video> &ptr,
+                                Video &video){
+            ptr.modify()->dateID=video.dateID;
+            ptr.modify()->location=video.location;
+            ptr.modify()->videoTypeID=video.videoTypeID;
+            ptr.modify()->name=video.name;
+            ptr.modify()->seekTime=video.seekTime;
+        };
+        DBAccess::startUpdating<Video>(*this,func);
+    }
 }
 
 void Handlers::Video::unSave(){
+    DBAccess::startDelete(*this);
+}
 
+long Handlers::Video::countItems(){
+    return DBAccess::getCount<Handlers::Video>("videos");
 }
