@@ -5,6 +5,9 @@
 #include <thread>
 #include <boost/filesystem.hpp>
 #include <future>
+#include <Poco/JSON/JSON.h>
+#include <Poco/JSON/Parser.h>
+#include <Poco/JSON/Object.h>
 
 //for db
 #include <Wt/Dbo/Session.h>
@@ -47,6 +50,13 @@ namespace DBAccess {
     };
     std::shared_mutex VideoPID::m_lock;
     long VideoPID::p_id=0;
+    struct PlaylistPID
+    {
+        static std::shared_mutex m_lock;
+        static long p_id;
+    };
+    std::shared_mutex PlaylistPID::m_lock;
+    long PlaylistPID::p_id=0;
 
     //function to handle incremeneting PID's
     template<typename PID>
@@ -106,6 +116,7 @@ namespace DBAccess {
                 session->mapClass<Handlers::Date>("date_table");
                 session->mapClass<Handlers::VideoType>("video_types");
                 session->mapClass<Handlers::Video>("videos");
+                session->mapClass<Handlers::PlayList>("playlists");
 
             } catch (Wt::Dbo::Exception &ex) {
     //            std::cerr<<"\nERROR: "<<ex.what();
@@ -124,6 +135,7 @@ namespace DBAccess {
             getMaxPID<Handlers::Date,DatePID>();
             getMaxPID<Handlers::VideoType,VideoTypePID>();
             getMaxPID<Handlers::Video,VideoPID>();
+            getMaxPID<Handlers::PlayList,PlaylistPID>();
 
         },session);
 
@@ -535,4 +547,62 @@ void Handlers::Video::unSave(){
 
 long Handlers::Video::countItems(){
     return DBAccess::getCount<Handlers::Video>("videos");
+}
+
+Handlers::PlayList::PlayList(const std::string &&name,
+                             const std::string &&location,
+                             const std::vector<long> &videoIDs,
+                             const long &dateLastPlayed)
+    :name(name),location(location),videoIDs(videoIDs),dateLastPlayed(dateLastPlayed){
+    Poco::JSON::Object objJSON;
+    objJSON.set("vals",videoIDs);
+    std::ostringstream stringStream;
+    objJSON.stringify(stringStream);
+
+    //turn it to string for saving in object
+    vids_ids_json=stringStream.str();
+}
+
+std::vector<long> Handlers::PlayList::getVideoIDs()const{
+    Poco::JSON::Parser jsonParser;
+    Poco::Dynamic::Var result=jsonParser.parse(this->vids_ids_json);
+    Poco::JSON::Object::Ptr objPtr=result.extract<Poco::JSON::Object::Ptr>();
+    std::vector<long> ids;
+
+    //the vals to be used
+    Poco::JSON::Array::Ptr valsArray= objPtr->get("vals")
+            .extract<Poco::JSON::Array::Ptr>();
+    for(auto it=valsArray->begin();
+        it!=valsArray->end();++it){
+        ids.push_back(it->convert<long>());
+    }
+    //auto valsVec=vals.extract<std::vector<long>>();
+    return ids;
+}
+
+Handlers::PlayList::PlayList::PlayList(){}
+
+template<typename Action>
+void Handlers::PlayList::persist(Action &a){
+    Wt::Dbo::field(a,this->pid,"pid");
+    Wt::Dbo::field(a,this->name,"name");
+    Wt::Dbo::field(a,location,"location");
+    Wt::Dbo::field(a,dateLastPlayed,"date_played_id");
+    Wt::Dbo::field(a,vids_ids_json,"vids_ids_json");
+}
+
+void Handlers::PlayList::save(){
+
+}
+
+void Handlers::PlayList::unSave(){
+
+}
+
+std::vector<Handlers::PlayList> Handlers::PlayList::getAll(){
+    return std::vector<PlayList>();
+}
+
+long Handlers::PlayList::countItems(){
+    return DBAccess::getCount<Handlers::PlayList>("playlists");
 }

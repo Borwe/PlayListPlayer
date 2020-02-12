@@ -114,6 +114,19 @@ BOOST_AUTO_TEST_CASE(testingVideos){
     BOOST_TEST(count==0);
 }
 
+BOOST_AUTO_TEST_CASE(testingPlayLists){
+    //creating a playlist
+    Handlers::PlayList playlist("yolo","/shit",std::vector<long>{1,2,3},3);
+    //now test that the vids ids match the one passed
+    bool match=playlist.getVideoIDs()==std::vector<long>{1,2,3};
+    BOOST_TEST(match);
+
+    //see the current number of playlists
+    int count=Handlers::PlayList::countItems();
+    //test that it's not negative
+    BOOST_TEST(count>=0);
+}
+
 BOOST_AUTO_TEST_CASE(testingGettingFiles){
    Handlers::SharedFilesVector files=  Handlers::getFilesInDir();
    //test no null object passed

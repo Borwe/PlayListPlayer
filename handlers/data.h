@@ -213,6 +213,48 @@ namespace Handlers {
             return this->seekTime;
         }
     };
+
+    class PlayList:DBMethods{
+    private:
+        long pid;
+        std::string name;
+        std::string location;
+        std::vector<long> videoIDs;
+        long dateLastPlayed;
+
+        //for holding values as json of videoIDS
+        std::string vids_ids_json;
+    public:
+        PlayList();
+        PlayList(const std::string &&name,
+                 const std::string &&location,
+                 const std::vector<long> &videoIDs,
+                 const long &dateLastPlayed);
+
+        //DB
+        template<typename Action>
+        void persist(Action &a);
+        void save();
+        void unSave();
+        static std::vector<PlayList> getAll();
+        static long countItems();
+
+        //getters
+        long getPID()const override{
+            return pid;
+        }
+        std::string getName()const{
+            return name;
+        }
+        std::string getLocation()const{
+            return location;
+        }
+        std::vector<long> getVideoIDs()const;
+
+        long getDateLastPlayed(){
+            return dateLastPlayed;
+        }
+    };
 }
 
 #endif // DATA_H
