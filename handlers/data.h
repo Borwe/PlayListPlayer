@@ -230,6 +230,7 @@ namespace Handlers {
                  const std::string &&location,
                  const std::vector<long> &videoIDs,
                  const long &dateLastPlayed);
+        PlayList(const PlayList *playlist);
 
         //DB
         template<typename Action>
@@ -238,6 +239,11 @@ namespace Handlers {
         void unSave();
         static std::vector<PlayList> getAll();
         static long countItems();
+
+        //setters
+        void setPID(long id) override{
+            this->pid=id;
+        }
 
         //getters
         long getPID()const override{

@@ -553,7 +553,8 @@ Handlers::PlayList::PlayList(const std::string &&name,
                              const std::string &&location,
                              const std::vector<long> &videoIDs,
                              const long &dateLastPlayed)
-    :name(name),location(location),videoIDs(videoIDs),dateLastPlayed(dateLastPlayed){
+    :name(name),location(location),videoIDs(videoIDs)
+    ,pid(-1),dateLastPlayed(dateLastPlayed){
     Poco::JSON::Object objJSON;
     objJSON.set("vals",videoIDs);
     std::ostringstream stringStream;
@@ -582,6 +583,12 @@ std::vector<long> Handlers::PlayList::getVideoIDs()const{
 
 Handlers::PlayList::PlayList::PlayList(){}
 
+Handlers::PlayList::PlayList(const PlayList *player):
+    location(player->location),name(player->name)
+    ,videoIDs(player->videoIDs),dateLastPlayed(player->dateLastPlayed),
+    vids_ids_json(player->vids_ids_json),pid(player->pid){
+}
+
 template<typename Action>
 void Handlers::PlayList::persist(Action &a){
     Wt::Dbo::field(a,this->pid,"pid");
@@ -592,11 +599,26 @@ void Handlers::PlayList::persist(Action &a){
 }
 
 void Handlers::PlayList::save(){
-
+    //check if has been saved before, if so pid>0
+    if(this->pid<=0){
+        //meaning not saved before, so start the process of saving here
+        DBAccess::startSaving<Handlers::PlayList,DBAccess::PlaylistPID>(*this,
+                          std::make_unique<Handlers::PlayList>(this));
+    }else{
+        //meaning already saved before, so start process of updating here
+        std::function func=[](Wt::Dbo::ptr<PlayList> &ptr,
+                PlayList &playlist){
+            ptr.modify()->name=playlist.name;
+            ptr.modify()->location=playlist.location;
+            ptr.modify()->dateLastPlayed=playlist.dateLastPlayed;
+            ptr.modify()->vids_ids_json=playlist.vids_ids_json;
+        };
+        DBAccess::startUpdating<PlayList>(*this,func);
+    }
 }
 
 void Handlers::PlayList::unSave(){
-
+    DBAccess::startDelete(*this);
 }
 
 std::vector<Handlers::PlayList> Handlers::PlayList::getAll(){

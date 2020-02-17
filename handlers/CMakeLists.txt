@@ -20,10 +20,6 @@ target_include_directories(handlers PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(handlers PRIVATE ${Boost_LIBRARIES})
 
 #add poco framework to get date support
-if(NOT Poco_DIR)
-    message(FATAL_ERROR "No place selected to Poco_DIR variable containing PocoConfig.cmake")
-endif()
-include(${Poco_DIR}/PocoConfig.cmake)
 find_package(Poco COMPONENTS Foundation JSON REQUIRED)
 if(NOT Poco_FOUND)
     message(FATAL_ERROR "No Poco Libraries found")
@@ -32,9 +28,6 @@ target_link_libraries(handlers PRIVATE Poco::Foundation PRIVATE Poco::JSON)
 target_include_directories(handlers PRIVATE Poco::Foundation PRIVATE Poco:JSON)
 
 #add wtdbo for database stuff
-if(NOT Wt_DIR)
-    message(FATAL_ERROR "Please make sure you pass Wt_DIR with directory that contains wt-config.cmake")
-endif()
 #find it
 find_package(Wt COMPONENTS Dbo DboSqlite3 REQUIRED)
 target_link_libraries(handlers PRIVATE Wt::Dbo PRIVATE Wt::DboSqlite3)

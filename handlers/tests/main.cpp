@@ -125,6 +125,15 @@ BOOST_AUTO_TEST_CASE(testingPlayLists){
     int count=Handlers::PlayList::countItems();
     //test that it's not negative
     BOOST_TEST(count>=0);
+
+    //now save playlist and see if count has increased
+    playlist.save();
+    BOOST_TEST(count==Handlers::PlayList::countItems()-1);
+
+    //now delete saved playlist and see if count
+    //is decremented
+    playlist.unSave();
+    BOOST_TEST(count==Handlers::PlayList::countItems());
 }
 
 BOOST_AUTO_TEST_CASE(testingGettingFiles){

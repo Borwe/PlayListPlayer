@@ -4,3 +4,7 @@
 #ignore qt creator files
 CMakeLists.txt.user*
 build/
+
+#for personal ycm setup
+bin/
+.ycm*

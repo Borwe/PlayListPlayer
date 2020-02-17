@@ -70,11 +70,10 @@ target_include_directories(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
 target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
 #for using boost library
 #setup boost_cmake_loc variable to be used
-set(Boost_NO_BOOST_CMAKE ON)
-message("BOOST_ROOT =>" ${BOOST_ROOT})
+#set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.65 COMPONENTS filesystem REQUIRED)
 if(NOT Boost_FOUND)
-    message(FATAL_ERROR "It appears no valid Boost_DIR was passed, please retry")
+	message(FATAL_ERROR "It appears no valid Boost_ROOT was passed, please retry")
 else()
     target_include_directories(PlaylistPlayer PRIVATE Boost::filesystem)
     target_link_libraries(PlaylistPlayer PRIVATE Boost::filesystem)
