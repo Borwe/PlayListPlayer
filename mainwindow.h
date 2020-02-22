@@ -34,10 +34,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    /**
-     * For holding the vectors of files currently read
-     */
-    QVector<QFile> filesToRead;
 
     /**
      * @brief do_initial_Loading

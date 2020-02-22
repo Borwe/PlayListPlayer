@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->progrssBar=new QProgressBar(this);
     progrssBar->setRange(0,0);
     progrssBar->setValue(-1);
-    progrssBar->setVisible(false);
+    progrssBar->setVisible(true);
     //attatch it to statusbar
     ui->statusbar->addWidget(progrssBar);
 
