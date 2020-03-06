@@ -26,43 +26,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets Gui REQUIRED)
 
-if(ANDROID)
-  add_library(PlaylistPlayer SHARED
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-    handlers.cpp
-    handlers.h
-
-	#for the types dialog
-	typesshow.cpp
-	typesshow.h
-	typesshow.ui
-
-	#for handling single inputs
-	singleinput.h
-	singleinput.cpp
-	singleinput.ui
-  )
-else()
-  add_executable(PlaylistPlayer
+add_executable(PlaylistPlayer
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
 
-	#for the types dialog
-	typesshow.cpp
-	typesshow.h
-	typesshow.ui
+    #for the types dialog
+    typesshow.cpp
+    typesshow.h
+    typesshow.ui
 
-	#for handling single inputs
-	singleinput.h
-	singleinput.cpp
-	singleinput.ui
-  )
-endif()
+    #for handling single inputs
+    singleinput.h
+    singleinput.cpp
+    singleinput.ui
+)
 
 target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
 target_include_directories(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
@@ -71,7 +50,9 @@ target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
 #for using boost library
 #setup boost_cmake_loc variable to be used
 #set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost 1.65 COMPONENTS filesystem REQUIRED)
+#set up to use dynamic libraries
+set(Boost_USE_STATIC_LIBS OFF)
+find_package(Boost COMPONENTS filesystem REQUIRED)
 if(NOT Boost_FOUND)
 	message(FATAL_ERROR "It appears no valid Boost_ROOT was passed, please retry")
 else()
@@ -81,5 +62,47 @@ endif()
 
 #add handlerslibrary
 add_subdirectory(${CMAKE_SOURCE_DIR}/handlers)
-target_link_libraries(PlaylistPlayer PRIVATE handlers)
-target_include_directories(PlaylistPlayer PRIVATE handlers)
+target_link_libraries(PlaylistPlayer PUBLIC handlers)
+target_include_directories(PlaylistPlayer PUBLIC handlers)
+
+##add_custom_command(TARGET PlaylistPlayer POST_BUILD
+    #COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:Boost::filesystem>/$<TARGET_FILE_:Boost::filesystem> $<TARGET_FILE_DIR:PlaylistPlayer>
+    #)
+
+
+get_target_property(BFILESYSTEM Boost::filesystem LOCATION)
+get_filename_component(BFILESYSTEM_LOC ${BFILESYSTEM} NAME_WE)
+message("FILESYSTEM NAME: " ${BFILESYSTEM_LOC})
+
+#setup install prefix
+message("-- Install location ${CMAKE_BINARY_DIR}/build")
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/build)
+
+#for installing
+install(TARGETS PlaylistPlayer
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static
+    )
+
+install(FILES $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE:Qt5::Core> $<TARGET_FILE:Qt5::Widgets>
+    $<TARGET_FILE_DIR:Boost::filesystem>/${BFILESYSTEM_LOC}.dll
+    DESTINATION bin)
+
+if(WIN32)
+    #for other dlls when running via IDE eg: qtcreator
+    find_package(Wt COMPONENTS Dbo DboSqlite3 REQUIRED)
+    find_package(Poco COMPONENTS Foundation JSON REQUIRED)
+    add_custom_command(TARGET PlaylistPlayer POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:Boost::filesystem>/${BFILESYSTEM_LOC}.dll $<TARGET_FILE_DIR:PlaylistPlayer>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:handlers> $<TARGET_FILE_DIR:PlaylistPlayer>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::Dbo> $<TARGET_FILE_DIR:PlaylistPlayer>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::DboSqlite3> $<TARGET_FILE_DIR:PlaylistPlayer>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::Foundation> $<TARGET_FILE_DIR:PlaylistPlayer>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::JSON> $<TARGET_FILE_DIR:PlaylistPlayer>
+        )
+    #disabled since using qtcreator
+    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:PlaylistPlayer>
+    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:PlaylistPlayer>
+    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:PlaylistPlayer>
+endif()

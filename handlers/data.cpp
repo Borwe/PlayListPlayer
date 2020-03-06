@@ -465,7 +465,7 @@ Handlers::Video::Video(const std::string &location,
      * for mapping with this ones
      */
     auto function_getVideoTypeAccess=[&loc](){
-        std::string extenstion=loc.extension().c_str();
+        std::string extenstion=loc.extension().string();
         std::string actual_extention="";
         int start=0;
         std::for_each(extenstion.cbegin(),extenstion.cend(),

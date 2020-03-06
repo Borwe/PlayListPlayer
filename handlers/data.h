@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+#include <shared_EXPORTS.h>
 
 
 
@@ -15,16 +16,18 @@ namespace Handlers {
     using ShDate=std::shared_ptr<Date>;
     using ShVideoType=std::shared_ptr<VideoType>;
 
-    class DBMethods{
+    class SHARED_EXPORT DBMethods{
     public:
         virtual void setPID(long id){}
-        virtual long getPID() const{}
+        virtual long getPID() const{
+            return -1;
+        };
         virtual void save(){}
         virtual void unSave(){}
     };
 
 
-    class VideoType:DBMethods{
+    class SHARED_EXPORT VideoType:DBMethods{
     private:
         long pid;
         std::string type;
@@ -70,7 +73,7 @@ namespace Handlers {
         }
     };
 
-    class Date:DBMethods {
+    class SHARED_EXPORT Date:DBMethods {
     private:
         int day;
         int month;
@@ -139,7 +142,7 @@ namespace Handlers {
         }
     };
 
-    class Video:DBMethods{
+    class SHARED_EXPORT Video:DBMethods{
     private:
         long pid;
         std::string location;
@@ -214,7 +217,7 @@ namespace Handlers {
         }
     };
 
-    class PlayList:DBMethods{
+    class SHARED_EXPORT PlayList:DBMethods{
     private:
         long pid;
         std::string name;

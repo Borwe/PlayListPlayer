@@ -5,8 +5,11 @@ project(handlers LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(handlers handlers.h handler.cpp
-    media_data.h media_data.cpp data.h data.cpp)
+add_library(handlers SHARED  handler.cpp
+    data.cpp )
+#for linking on windows
+target_compile_definitions(handlers PRIVATE -Dshared_EXPORTS)
+
 
 #add tests
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -32,3 +35,16 @@ target_include_directories(handlers PRIVATE Poco::Foundation PRIVATE Poco:JSON)
 find_package(Wt COMPONENTS Dbo DboSqlite3 REQUIRED)
 target_link_libraries(handlers PRIVATE Wt::Dbo PRIVATE Wt::DboSqlite3)
 target_include_directories(handlers PRIVATE Wt::Dbo PRIVATE Wt::DboSqlite3)
+
+install(FILES $<TARGET_FILE:Poco::Foundation> $<TARGET_FILE:Wt::Dbo> $<TARGET_FILE:Wt::DboSqlite3>
+    $<TARGET_FILE:Poco::JSON>
+    DESTINATION bin)
+
+if(WIN32)
+    add_custom_command(TARGET handlers POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::Foundation> $<TARGET_FILE_DIR:handlers>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::Dbo> $<TARGET_FILE_DIR:handlers>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::DboSqlite3> $<TARGET_FILE_DIR:handlers>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::JSON> $<TARGET_FILE_DIR:handlers>
+    )
+endif()

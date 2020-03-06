@@ -10,6 +10,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include <shared_EXPORTS.h>
+
 namespace Handlers
 {
     using FilePath=boost::filesystem::path;
@@ -34,16 +36,16 @@ namespace Handlers
                 std::cerr<<"ERROR: "<<ex.what()<<"\n";
             }
         }
-    }
+    };
 
-    SharedFilesVector getFilesInDir(const std::string &directory="./");
+    SharedFilesVector SHARED_EXPORT getFilesInDir(const std::string &directory="./");
     /**
      * @brief getFilesOfMultimedia
      * @param filesInDir
      * @return files that match an extention that the user wants to be supported for playing
      * default is mp4,mkv,3gp
      */
-    SharedFilesVector getFilesOfMultimedia(SharedFilesVector filesInDir);
+    SharedFilesVector SHARED_EXPORT getFilesOfMultimedia(SharedFilesVector filesInDir);
 
     /**
      * @brief The PlayerHandler class
@@ -57,7 +59,7 @@ namespace Handlers
      *  containing any playlist.
      * - All the data is stored in data.db file where the executable is located
      */
-    class PlayerHandler{
+    class SHARED_EXPORT PlayerHandler{
     private:
         std::vector<std::string> videoTypes;
 

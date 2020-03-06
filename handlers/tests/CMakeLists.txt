@@ -14,9 +14,24 @@ enable_testing()
 add_test(tests COMMAND tests)
 
 #add boost test
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework filesystem REQUIRED)
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "Couldn't find Boost or Boost::unit_test_framework module")
 endif()
-target_include_directories(tests PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(tests PUBLIC ${Boost_LIBRARIES})
+target_include_directories(tests PUBLIC Boost::unit_test_framework PUBLIC Boost::filesystem)
+target_link_libraries(tests PUBLIC Boost::unit_test_framework PUBLIC Boost::filesystem)
+
+if(WIN32)
+    #for executing via IDE eg: qtcreator
+    find_package(Poco COMPONENTS Foundation JSON REQUIRED)
+    find_package(Wt COMPONENTS Dbo DboSqlite3 REQUIRED)
+    add_custom_command(TARGET tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Boost::filesystem> $<TARGET_FILE_DIR:tests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Boost::unit_test_framework> $<TARGET_FILE_DIR:tests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::Foundation> $<TARGET_FILE_DIR:tests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::Dbo> $<TARGET_FILE_DIR:tests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::DboSqlite3> $<TARGET_FILE_DIR:tests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::JSON> $<TARGET_FILE_DIR:tests>
+    )
+endif()
+
