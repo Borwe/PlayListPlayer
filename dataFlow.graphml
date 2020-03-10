@@ -410,7 +410,7 @@ Close This Dialog<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelM
 - Update: - Update a playlist with it's files on disk..
       Has option to update location where playlist is.
 - Help option:- User sees help dialog
-- Add Multimedia types
+- Add/Remove Multimedia types
 - Show Multimedia types
 - Exit:- Exits the application<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelParameter><y:ErdAttributesNodeLabelModelParameter/></y:ModelParameter></y:NodeLabel>
           <y:StyleProperties>
@@ -1855,7 +1855,7 @@ object in Player to DB<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:L
               <y:Geometry height="973.6682352119294" width="943.9971368364136" x="-1798.9288613198275" y="248.3343821833468"/>
               <y:Fill color="#CAECFF84" transparent="false"/>
               <y:BorderStyle color="#666699" type="dotted" width="1.0"/>
-              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#99CCFF" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="22.37646484375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="943.9971368364136" x="0.0" xml:space="preserve" y="0.0">Add MultiMedia Types</y:NodeLabel>
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#99CCFF" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="22.37646484375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="943.9971368364136" x="0.0" xml:space="preserve" y="0.0">Add/Remove MultiMedia Types</y:NodeLabel>
               <y:Shape type="roundrectangle"/>
               <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
               <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0" top="15" topF="15.0"/>
@@ -3953,6 +3953,7 @@ the change<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y
       <data key="d10">
         <y:GenericEdge configuration="com.yworks.edge.framed">
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="100.62059025210084" y="121.1604974789916"/>
             <y:Point x="-2159.1226137815124" y="158.6418636428308"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="3.0"/>

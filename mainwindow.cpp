@@ -3,65 +3,82 @@
 #include <QDebug>
 #include <future>
 #include <mutex>
-#include <atomic>
 #include <QFileDialog>
 #include <iostream>
 #include <handlers.h>
+#include <thread>
 
 //for showing types dialog
 #include <typesshow.h>
 #include <QErrorMessage>
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    this->firstLoaded.store(0);
     ui->setupUi(this);
 
+
     //setup loadingbar
-    this->progrssBar=new QProgressBar(this);
-    progrssBar->setRange(0,0);
-    progrssBar->setValue(-1);
-    progrssBar->setVisible(true);
+    this->loadingBar=new QProgressBar(this);
+    loadingBar->setRange(0,0);
+    loadingBar->setValue(-1);
+    loadingBar->setVisible(false);
+    //setup loadingbar label
+    loadingLabel=new QLabel("Complete",this);
+
     //attatch it to statusbar
-    ui->statusbar->addWidget(progrssBar);
+    ui->statusbar->addWidget(loadingLabel);
+    ui->statusbar->addWidget(loadingBar);
 
-    do_initial_Loading();
+    //for handling loading bar and loading texts via signal
+    connect(this,&MainWindow::beginLoad,this,&MainWindow::beginLoading);
+    connect(this,SIGNAL(endLoad()),this,SLOT(endLoading()));
 }
 
-template<typename R,typename T>
-void MainWindow::startLoadingAction(std::string &loadingLabel,std::function<R(T)> &func){
-    //set the title of the progress bar and show it
-    progrssBar->setToolTip(loadingLabel.c_str());
-    progrssBar->setVisible(true);
-
-    std::lock_guard<std::mutex>(this->loading_mutex);
-    loading=true;
-
-    //then now start the function in another thread
-    std::async(std::launch::async,func);
+void MainWindow::showEvent(QShowEvent *event){
+    QWidget::showEvent(event);
+    ++this->firstLoaded;
+    if(this->firstLoaded==1){
+        do_initial_Loading();
+    }
 }
 
-template<typename R>
-void MainWindow::startLoadingAction(std::string &loadingLabel,std::function<R ()> func){
-
+void MainWindow::beginLoading(QString title){
+    std::unique_lock<std::mutex> uq(this->loading_mutex);
+    this->loadingBar->setVisible(true);
+    this->loading=true;
+    this->loadingLabel->setText(title);
+    qDebug()<<"Starting loading\n";
 }
 
-void MainWindow::stopLoadingAction(){
-
-    progrssBar->setVisible(false);
-
-    std::lock_guard<std::mutex>(this->loading_mutex);
-    loading=false;
+void MainWindow::endLoading(){
+    std::unique_lock<std::mutex> uq(this->loading_mutex);
+    this->loadingBar->setVisible(false);
+    this->loading=false;
+    this->loadingLabel->setText("Completed");
+    qDebug()<<"Done loading\n";
 }
+
 
 void startGettingFiles(){
     qDebug()<<"GETTING FILES\n";
 }
 
 void MainWindow::do_initial_Loading(){
-    std::string text("shit");
-    startLoadingAction<void>(text,startGettingFiles);
+    std::function<void()> starting_events=[this](){
+        auto title=QString("Startup setup");
+        emit this->beginLoad(title);
+
+        //just a test, supposed to implement something actually, later on
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+        emit this->endLoad();
+    };
+
+    std::thread *thread=new std::thread(starting_events);
 }
 
 MainWindow::~MainWindow()
@@ -73,8 +90,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionExit_triggered()
 {
     qDebug() <<"Exiting application\n";
-    //futureLoads.~future();
-    std::exit(0);
+    this->close();
 }
 
 /**

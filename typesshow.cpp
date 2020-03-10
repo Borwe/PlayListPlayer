@@ -13,6 +13,10 @@ TypesShow::TypesShow(QWidget *parent) :
     ui(new Ui::TypesShow)
 {
     ui->setupUi(this);
+    //make add_button have main focus
+    ui->add_type->setFocus();
+    //make remove_type button disabled by default
+    ui->remove_type->setEnabled(false);
 
     //Function for filling up the list of types to be displayed
     auto fillUpList=[](){

@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
@@ -46,7 +46,9 @@ add_executable(PlaylistPlayer
 target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
 target_include_directories(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)
 #for multithreading on linux
-target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
+if(UNIX)
+    target_link_libraries(PlaylistPlayer PRIVATE -lpthread)
+endif()
 #for using boost library
 #setup boost_cmake_loc variable to be used
 #set(Boost_NO_BOOST_CMAKE ON)
@@ -100,9 +102,9 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Wt::DboSqlite3> $<TARGET_FILE_DIR:PlaylistPlayer>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::Foundation> $<TARGET_FILE_DIR:PlaylistPlayer>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Poco::JSON> $<TARGET_FILE_DIR:PlaylistPlayer>
-        )
     #disabled since using qtcreator
-    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:PlaylistPlayer>
-    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:PlaylistPlayer>
-    #    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:PlaylistPlayer>
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:PlaylistPlayer>
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:PlaylistPlayer>
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:PlaylistPlayer>
+     )
 endif()
