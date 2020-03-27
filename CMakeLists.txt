@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 
 project(PlaylistPlayer LANGUAGES CXX)
 
@@ -51,15 +51,16 @@ if(UNIX)
 endif()
 #for using boost library
 #setup boost_cmake_loc variable to be used
-#set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_BOOST_CMAKE ON)
+message("Boost_ROOT " ${BOOST_ROOT})
 #set up to use dynamic libraries
 set(Boost_USE_STATIC_LIBS OFF)
-find_package(Boost COMPONENTS filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 if(NOT Boost_FOUND)
-	message(FATAL_ERROR "It appears no valid Boost_ROOT was passed, please retry")
+        message(FATAL_ERROR "It appears no valid Boost_ROOT was passed, please retry")
 else()
-    target_include_directories(PlaylistPlayer PRIVATE Boost::filesystem)
-    target_link_libraries(PlaylistPlayer PRIVATE Boost::filesystem)
+    target_include_directories(PlaylistPlayer PRIVATE ${Boost_INCLUDE_DIRS})
+    target_link_libraries(PlaylistPlayer PRIVATE ${Boost_LIBRARIES})
 endif()
 
 #add handlerslibrary
@@ -72,13 +73,6 @@ target_include_directories(PlaylistPlayer PUBLIC handlers)
     #)
 
 
-get_target_property(BFILESYSTEM Boost::filesystem LOCATION)
-get_filename_component(BFILESYSTEM_LOC ${BFILESYSTEM} NAME_WE)
-message("FILESYSTEM NAME: " ${BFILESYSTEM_LOC})
-
-#setup install prefix
-message("-- Install location ${CMAKE_BINARY_DIR}/build")
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/build)
 
 #for installing
 install(TARGETS PlaylistPlayer
@@ -87,11 +81,20 @@ install(TARGETS PlaylistPlayer
     ARCHIVE DESTINATION lib/static
     )
 
-install(FILES $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE:Qt5::Core> $<TARGET_FILE:Qt5::Widgets>
-    $<TARGET_FILE_DIR:Boost::filesystem>/${BFILESYSTEM_LOC}.dll
-    DESTINATION bin)
 
 if(WIN32)
+get_target_property(BFILESYSTEM Boost::filesystem LOCATION)
+get_filename_component(BFILESYSTEM_LOC ${BFILESYSTEM} NAME_WE)
+message("FILESYSTEM NAME: " ${BFILESYSTEM_LOC})
+
+#setup install prefix
+message("-- Install location ${CMAKE_BINARY_DIR}/build")
+
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/build)
+        install(FILES $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE:Qt5::Core> $<TARGET_FILE:Qt5::Widgets>
+                $<TARGET_FILE_DIR:Boost::filesystem>/${BFILESYSTEM_LOC}.dll
+                DESTINATION bin)
+
     #for other dlls when running via IDE eg: qtcreator
     find_package(Wt COMPONENTS Dbo DboSqlite3 REQUIRED)
     find_package(Poco COMPONENTS Foundation JSON REQUIRED)

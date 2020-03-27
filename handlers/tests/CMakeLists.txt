@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,12 +14,12 @@ enable_testing()
 add_test(tests COMMAND tests)
 
 #add boost test
-find_package(Boost COMPONENTS unit_test_framework filesystem REQUIRED)
+find_package(Boost 1.65 COMPONENTS unit_test_framework filesystem REQUIRED)
 if(NOT Boost_FOUND)
-    message(FATAL_ERROR "Couldn't find Boost or Boost::unit_test_framework module")
+    message(FATAL_ERROR "Couldn't find Boost::filesystem or Boost::unit_test_framework module")
 endif()
-target_include_directories(tests PUBLIC Boost::unit_test_framework PUBLIC Boost::filesystem)
-target_link_libraries(tests PUBLIC Boost::unit_test_framework PUBLIC Boost::filesystem)
+target_include_directories(tests PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(tests PRIVATE ${Boost_LIBRARIES})
 
 if(WIN32)
     #for executing via IDE eg: qtcreator
