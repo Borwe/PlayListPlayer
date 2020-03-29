@@ -71,6 +71,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/handlers)
 target_link_libraries(PlaylistPlayer PUBLIC handlers)
 target_include_directories(PlaylistPlayer PUBLIC handlers)
 
+#add the test for main_gui
+add_subdirectory(${CMAKE_SOURCE_DIR}/main_gui_test)
+
 ##add_custom_command(TARGET PlaylistPlayer POST_BUILD
     #COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:Boost::filesystem>/$<TARGET_FILE_:Boost::filesystem> $<TARGET_FILE_DIR:PlaylistPlayer>
     #)
