@@ -8,10 +8,14 @@
 #include <QErrorMessage>
 #include <QMessageBox>
 
-TypesShow::TypesShow(QWidget *parent) :
+TypesShow::TypesShow(MainWindow *parent) :
     QDialog(parent),
-    ui(new Ui::TypesShow)
+    ui(new Ui::TypesShow),
+    m_parent(parent)
 {
+    //display loading bar
+    m_parent->beginLoading(QString("Loading Types View"));
+
     ui->setupUi(this);
     //make add_button have main focus
     ui->add_type->setFocus();
@@ -29,6 +33,9 @@ TypesShow::TypesShow(QWidget *parent) :
     for(auto &type:types){
         ui->typesList->addItem(type.getType().c_str());
     }
+
+    //end displaying loading bar
+    m_parent->endLoading();
 }
 
 TypesShow::~TypesShow()

@@ -41,6 +41,9 @@ add_executable(PlaylistPlayer
     singleinput.h
     singleinput.cpp
     singleinput.ui
+
+    #for loading bar data
+    loadingdata.cpp
 )
 
 target_link_libraries(PlaylistPlayer PRIVATE Qt5::Widgets Qt5::Gui)

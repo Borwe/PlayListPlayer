@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <vector>
 
+#include <mainwindow.h>
 #include <data.h>
 
 using VideoTypes=std::vector<Handlers::VideoType>;
@@ -17,7 +18,7 @@ class TypesShow : public QDialog
     Q_OBJECT
 
 public:
-    explicit TypesShow(QWidget *parent = 0);
+    explicit TypesShow(MainWindow *parent = 0);
     ~TypesShow();
 
 private slots:
@@ -30,6 +31,9 @@ private:
 
     //hold the types
     VideoTypes types;
+
+    //To hold the parent window
+    MainWindow * m_parent;
 };
 
 #endif // TYPESSHOW_H

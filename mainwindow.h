@@ -41,6 +41,7 @@ private slots:
      */
     void do_initial_Loading();
 
+public slots:
     /**
      * @brief beginLoading
      * @param title

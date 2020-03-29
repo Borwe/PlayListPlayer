@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     loadingBar->setRange(0,0);
     loadingBar->setValue(-1);
     loadingBar->setVisible(false);
+    loadingBar->setFixedHeight(20);
     //setup loadingbar label
     loadingLabel=new QLabel("Complete",this);
 
@@ -48,6 +49,11 @@ void MainWindow::showEvent(QShowEvent *event){
 
 void MainWindow::beginLoading(QString title){
     std::unique_lock<std::mutex> uq(this->loading_mutex);
+
+    //check if loading is true
+    if(this->loading==true){
+        //increment count
+    }
     this->loadingBar->setVisible(true);
     this->loading=true;
     this->loadingLabel->setText(title);
