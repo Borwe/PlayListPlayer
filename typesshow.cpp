@@ -2,8 +2,8 @@
 #include "ui_typesshow.h"
 #include "singleinput.h"
 
-#include <iostream>
 #include <future>
+#include <QDebug>
 #include <algorithm>
 #include <QErrorMessage>
 #include <QMessageBox>
@@ -33,6 +33,12 @@ TypesShow::TypesShow(MainWindow *parent) :
     for(auto &type:types){
         ui->typesList->addItem(type.getType().c_str());
     }
+
+    //setup the connection to when an item is selected in the typesList
+    //to enable the remove button
+    connect(ui->typesList,&QListWidget::itemClicked,this,&TypesShow::typeSelected);
+    //setup the remove button to remove the selected type from DB and list
+    connect(ui->remove_type,&QPushButton::pressed,this,&TypesShow::on_remove_button_clicked);
 
     //end displaying loading bar
     m_parent->endLoading();
@@ -94,3 +100,73 @@ void TypesShow::on_add_type_clicked()
     in->setDoSomethingFunction(func,this);
     in->show();
 }
+
+/**
+ * @brief TypesShow::typeSelected
+ * @param item
+ * Notified when an item is selected on the list
+ */
+void TypesShow::typeSelected(QListWidgetItem *item){
+    //set the item selected to item value
+    this->selected_item=item;
+    ui->remove_type->setEnabled(true);
+}
+
+/**
+ * @brief removeItemFromQListWidget
+ * @param list
+ * @param item
+ * Used for removing items from list widget if they exist and
+ * repopulating list with default list just incase user deleted
+ * everything
+ */
+void removeItemFromQListWidget(QListWidget *list,QPushButton *removeButton){
+    //get row of item from list
+    int row=list->currentRow();
+    list->takeItem(row);
+
+    removeButton->setEnabled(false);
+
+    //clear focus
+    list->clearFocus();
+
+    //if the number of items is bellow 0, then now repopulate with the default list
+    if(list->model()->rowCount()<=0){
+        //we refill the list
+        for(auto &type:Handlers::VideoType::getAll()){
+            list->addItem(type.getType().c_str());
+        }
+    }
+}
+
+/**
+ * @brief TypesShow::on_remove_type_clicked
+ * When user has selected an item, then the delete button should be enabled
+ * where by the user can now click the delete button and gracefully delete the selected item from the database
+ * However should the user delete all items, a default set should be used to repopulate
+ * everything
+ */
+void TypesShow::on_remove_button_clicked(){
+    //show loading screen
+    m_parent->beginLoading(QString("Removing item ").append(selected_item->text()));
+    //get item
+    if(selected_item->isSelected()){
+        QString text=selected_item->text();
+        //now get VideoType from DB matching and remove it
+        Handlers::ShVideoType videoType=Handlers::VideoType::getVideoTypeByType(text.toStdString());
+        //if null means no such type exists
+        if(videoType==nullptr){
+            //so just remove the item from the QListWidget
+            removeItemFromQListWidget(ui->typesList,ui->remove_type);
+        }else{
+            //go ahead and remove it from the DB, then from the UI
+            videoType->unSave();
+            removeItemFromQListWidget(ui->typesList,ui->remove_type);
+        }
+    }else{
+        qDebug()<<"Can't remove something not selected\n";
+    }
+    //end showing loading
+    m_parent->endLoading();
+}
+

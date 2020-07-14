@@ -416,7 +416,7 @@ Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string 
     //if type is null, then do nothing
     if(type.empty()){
         std::cout<<"Doing nothing\n";
-        return std::make_shared<VideoType>("yack");
+        return nullptr;
     }
 
     // get session

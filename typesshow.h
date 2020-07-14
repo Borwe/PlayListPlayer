@@ -2,6 +2,7 @@
 #define TYPESSHOW_H
 
 #include <QDialog>
+#include <QListWidgetItem>
 #include <vector>
 
 #include <mainwindow.h>
@@ -26,6 +27,9 @@ private slots:
 
     void on_add_type_clicked();
 
+    void on_remove_button_clicked();
+
+    void typeSelected(QListWidgetItem *item);
 private:
     Ui::TypesShow *ui;
 
@@ -34,6 +38,9 @@ private:
 
     //To hold the parent window
     MainWindow * m_parent;
+
+    //To hold the type info once it is selected
+    QListWidgetItem *selected_item;
 };
 
 #endif // TYPESSHOW_H
