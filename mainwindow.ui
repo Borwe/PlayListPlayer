@@ -114,7 +114,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -142,7 +142,6 @@
     <property name="title">
      <string>Options</string>
     </property>
-    <addaction name="actionAdd_Types"/>
     <addaction name="actionShow_MultiMedia_Types"/>
    </widget>
    <addaction name="menuFile"/>
@@ -183,11 +182,6 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
-   </property>
-  </action>
-  <action name="actionAdd_Types">
-   <property name="text">
-    <string>Add MultiMedia Types</string>
    </property>
   </action>
   <action name="actionShow_MultiMedia_Types">

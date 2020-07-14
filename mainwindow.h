@@ -27,8 +27,6 @@ public:
 private slots:
     void on_actionExit_triggered();
 
-    void on_actionAdd_Types_triggered();
-
     void on_actionShow_MultiMedia_Types_triggered();
 
     void on_actionCreate_Open_New_PlayList_triggered();

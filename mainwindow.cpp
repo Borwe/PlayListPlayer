@@ -99,19 +99,11 @@ void MainWindow::on_actionExit_triggered()
     this->close();
 }
 
-/**
- * @brief MainWindow::on_actionAdd_Types_triggered
- */
-void MainWindow::on_actionAdd_Types_triggered()
+void MainWindow::on_actionShow_MultiMedia_Types_triggered()
 {
     TypesShow *typs=new TypesShow(this);
     typs->setModal(true);
     typs->show();
-}
-
-void MainWindow::on_actionShow_MultiMedia_Types_triggered()
-{
-    on_actionAdd_Types_triggered();
 }
 
 void MainWindow::on_selected_file(const QString &name){
