@@ -22,6 +22,8 @@ public:
     explicit TypesShow(MainWindow *parent = 0);
     ~TypesShow();
 
+    void updateTypesListWithDB();
+
 private slots:
     void on_exit_view_clicked();
 
@@ -31,6 +33,9 @@ private slots:
 
     void typeSelected(QListWidgetItem *item);
 private:
+    //For removing items from list
+    void removeItemFromQListWidget();
+
     Ui::TypesShow *ui;
 
     //hold the types
@@ -41,6 +46,7 @@ private:
 
     //To hold the type info once it is selected
     QListWidgetItem *selected_item;
+
 };
 
 #endif // TYPESSHOW_H

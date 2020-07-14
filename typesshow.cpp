@@ -58,6 +58,14 @@ void TypesShow::on_exit_view_clicked()
     this->close();
 }
 
+void TypesShow::updateTypesListWithDB(){
+
+    ui->typesList->clear();
+    for(auto &type:Handlers::VideoType::getAll()){
+        ui->typesList->addItem(type.getType().c_str());
+    }
+}
+
 /**
  * @brief TypesShow::on_add_type_clicked
  * Show dialog that prompts user to give input or exit
@@ -71,7 +79,7 @@ void TypesShow::on_add_type_clicked()
     SingleInput *in=new SingleInput(this,"Enter Types","Add Type","Enter type you would like to add");
     in->setModal(true);
 
-    std::function<void(QWidget *parent,SingleInput *input)> func=[](QWidget *parent,SingleInput *input){
+    std::function<void(QWidget *parent,SingleInput *input)> func=[this](QWidget *parent,SingleInput *input){
 
         std::string value=input->getValue();
         //check if such a type exists in the database
@@ -85,14 +93,11 @@ void TypesShow::on_add_type_clicked()
             Handlers::VideoType type(std::move(value));
             type.save();
 
-            //show success message box
-            QMessageBox *success=new QMessageBox(parent);
-            success->setModal(true);
-            success->setText("Saved to database");
-            success->show();
+            //refresh ui
+            this->updateTypesListWithDB();
 
             input->close();
-            parent->close();
+            //parent->close();
         }
     };
 
@@ -120,23 +125,18 @@ void TypesShow::typeSelected(QListWidgetItem *item){
  * repopulating list with default list just incase user deleted
  * everything
  */
-void removeItemFromQListWidget(QListWidget *list,QPushButton *removeButton){
+void TypesShow::removeItemFromQListWidget(){
     //get row of item from list
-    int row=list->currentRow();
-    list->takeItem(row);
+    int row=ui->typesList->currentRow();
+    ui->typesList->takeItem(row);
 
-    removeButton->setEnabled(false);
+    ui->remove_type->setEnabled(false);
 
     //clear focus
-    list->clearFocus();
+    ui->typesList->clearFocus();
 
     //if the number of items is bellow 0, then now repopulate with the default list
-    if(list->model()->rowCount()<=0){
-        //we refill the list
-        for(auto &type:Handlers::VideoType::getAll()){
-            list->addItem(type.getType().c_str());
-        }
-    }
+    updateTypesListWithDB();
 }
 
 /**
@@ -157,11 +157,11 @@ void TypesShow::on_remove_button_clicked(){
         //if null means no such type exists
         if(videoType==nullptr){
             //so just remove the item from the QListWidget
-            removeItemFromQListWidget(ui->typesList,ui->remove_type);
+            removeItemFromQListWidget();
         }else{
             //go ahead and remove it from the DB, then from the UI
             videoType->unSave();
-            removeItemFromQListWidget(ui->typesList,ui->remove_type);
+            removeItemFromQListWidget();
         }
     }else{
         qDebug()<<"Can't remove something not selected\n";

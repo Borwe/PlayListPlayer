@@ -13,7 +13,6 @@
 #include <Wt/Dbo/Session.h>
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/backend/Sqlite3.h>
-#include <mutex>
 #include <shared_mutex>
 #include <memory>
 #include <condition_variable>
@@ -38,18 +37,21 @@ namespace DBAccess {
     };
     std::shared_mutex DatePID::m_lock;
     long DatePID::p_id=0;
+
     struct VideoTypePID{
         static std::shared_mutex m_lock;
         static long p_id;
     };
     std::shared_mutex VideoTypePID::m_lock;
     long VideoTypePID::p_id=0;
+
     struct VideoPID{
         static std::shared_mutex m_lock;
         static long p_id;
     };
     std::shared_mutex VideoPID::m_lock;
     long VideoPID::p_id=0;
+
     struct PlaylistPID
     {
         static std::shared_mutex m_lock;
@@ -57,6 +59,18 @@ namespace DBAccess {
     };
     std::shared_mutex PlaylistPID::m_lock;
     long PlaylistPID::p_id=0;
+
+    //used to get read lock
+    template <typename PID>
+    std::shared_lock<std::shared_mutex> readLockPID(){
+        return std::move(std::shared_lock<std::shared_mutex>(PID::m_lock));
+    }
+
+    //used to get write lock
+    template <typename PID>
+    std::unique_lock<std::shared_mutex> writeLockPID(){
+        return std::move(std::unique_lock<std::shared_mutex>(PID::m_lock));
+    }
 
     //function to handle incremeneting PID's
     template<typename PID>
@@ -150,9 +164,10 @@ namespace DBAccess {
      */
     template<typename Class,typename PID>
     void startSaving(Class &obj,std::unique_ptr<Class> &&uObj){
+            //start write lock here
+            writeLockPID<PID>();
             DBAccess::ShSession session=getSession();
             Wt::Dbo::Transaction trans(*session);
-
 
             DBAccess::incrementPID<PID>();
             uObj->setPID(DBAccess::getPID<PID>());
@@ -164,8 +179,10 @@ namespace DBAccess {
     /**
      *Used for getting all elements of a specific type from DB
      */
-    template<typename Class>
+    template<typename Class,typename PID>
     void getAll(std::vector<Class> &vecStorage){
+        //start read lock here
+        readLockPID<PID>();
         DBAccess::ShSession session=getSession();
         Wt::Dbo::Transaction trans(*session);
 
@@ -181,8 +198,10 @@ namespace DBAccess {
      * Used to count the number of items of a
      * specific type in the database
      */
-    template<typename Class>
+    template<typename Class,typename PID>
     long getCount(const std::string tableName){
+        //start read lock here
+        readLockPID<PID>();
         DBAccess::ShSession session=getSession();
         Wt::Dbo::Transaction trans(*session);
 
@@ -196,8 +215,10 @@ namespace DBAccess {
      * Pass obj you want to update from database, with a function that
      * shows how to update the pointer to the object in the database
      */
-    template<typename Class>
+    template<typename Class,typename PID>
     void startUpdating(Class &obj,std::function<void(Wt::Dbo::ptr<Class> &,Class &)> &func ){
+        //start write lock here
+        writeLockPID<PID>();
         //meaning has already been saved before so, now just update it on the database
         DBAccess::ShSession session=DBAccess::getSession();
         Wt::Dbo::Transaction trans(*session);
@@ -215,8 +236,10 @@ namespace DBAccess {
     /**
      *Pass in an object to be used to delete of Type Class from the database
      */
-    template<typename Class>
+    template<typename Class,typename PID>
     void startDelete(Class &obj){
+        //start write lock here
+        writeLockPID<PID>();
 
         if(obj.getPID()>=0){
             DBAccess::ShSession session=DBAccess::getSession();
@@ -322,12 +345,12 @@ void Handlers::Date::save(){
                 ptr.modify()->setMonth(date.getMonth());
                 ptr.modify()->setYear(date.getYear());
         };
-        DBAccess::startUpdating<Handlers::Date>(*this,func);
+        DBAccess::startUpdating<Handlers::Date,DBAccess::DatePID>(*this,func);
     }
 }
 
 void Handlers::Date::unSave(){
-    DBAccess::startDelete(*this);
+    DBAccess::startDelete<Date,DBAccess::DatePID>(*this);
 }
 
 Handlers::VideoType::VideoType():pid(-1){
@@ -351,6 +374,8 @@ void Handlers::VideoType::persist(Action &a){
 void Handlers::VideoType::save(){
     //if never saved, do this
     if(this->pid<0){
+        //do read lock here
+        DBAccess::readLockPID<DBAccess::VideoTypePID>();
         //first check that no such object exists in the database of similar type before going ahead and adding
         DBAccess::ShSession session=DBAccess::getSession();
         Wt::Dbo::Transaction trans(*session);
@@ -369,7 +394,7 @@ void Handlers::VideoType::save(){
         std::function func=[](Wt::Dbo::ptr<Handlers::VideoType> &ptr,Handlers::VideoType &video){
             ptr.modify()->setType(video.type);
         };
-        DBAccess::startUpdating<Handlers::VideoType>(*this,func);
+        DBAccess::startUpdating<Handlers::VideoType,DBAccess::VideoTypePID>(*this,func);
     }
 
 }
@@ -379,7 +404,7 @@ void Handlers::VideoType::save(){
  * Remove VideoType from database
  */
 void Handlers::VideoType::unSave(){
-    DBAccess::startDelete(*this);
+    DBAccess::startDelete<VideoType,DBAccess::VideoTypePID>(*this);
 }
 
 /**
@@ -390,9 +415,9 @@ void Handlers::VideoType::unSave(){
  */
 std::vector<Handlers::VideoType> Handlers::VideoType::getAll(){
     std::vector<VideoType> resultToReturn;
-    DBAccess::getAll<VideoType>(resultToReturn);
+    DBAccess::getAll<VideoType,DBAccess::VideoTypePID>(resultToReturn);
 
-    if(resultToReturn.size()<3){
+    if(resultToReturn.size()<=0){
         //if resultToReturn is less than 3, then populate database with default objects
         //of MP4,MKV,and 3GP
         VideoType mp4("mp4");
@@ -406,7 +431,7 @@ std::vector<Handlers::VideoType> Handlers::VideoType::getAll(){
         //create the resultToReturn just in case
         resultToReturn.clear();
         //repopulate it
-        DBAccess::getAll<VideoType>(resultToReturn);
+        DBAccess::getAll<VideoType,DBAccess::VideoTypePID>(resultToReturn);
     }
     //return it
     return resultToReturn;
@@ -418,6 +443,9 @@ Handlers::ShVideoType Handlers::VideoType::getVideoTypeByType(const std::string 
         std::cout<<"Doing nothing\n";
         return nullptr;
     }
+
+    //start read lock here
+    DBAccess::readLockPID<DBAccess::VideoTypePID>();
 
     // get session
     DBAccess::ShSession session=DBAccess::getSession();
@@ -537,16 +565,16 @@ void Handlers::Video::save(){
             ptr.modify()->name=video.name;
             ptr.modify()->seekTime=video.seekTime;
         };
-        DBAccess::startUpdating<Video>(*this,func);
+        DBAccess::startUpdating<Video,DBAccess::VideoPID>(*this,func);
     }
 }
 
 void Handlers::Video::unSave(){
-    DBAccess::startDelete(*this);
+    DBAccess::startDelete<Video,DBAccess::VideoPID>(*this);
 }
 
 long Handlers::Video::countItems(){
-    return DBAccess::getCount<Handlers::Video>("videos");
+    return DBAccess::getCount<Handlers::Video,DBAccess::VideoPID>("videos");
 }
 
 Handlers::PlayList::PlayList(const std::string &&name,
@@ -613,12 +641,12 @@ void Handlers::PlayList::save(){
             ptr.modify()->dateLastPlayed=playlist.dateLastPlayed;
             ptr.modify()->vids_ids_json=playlist.vids_ids_json;
         };
-        DBAccess::startUpdating<PlayList>(*this,func);
+        DBAccess::startUpdating<PlayList,DBAccess::PlaylistPID>(*this,func);
     }
 }
 
 void Handlers::PlayList::unSave(){
-    DBAccess::startDelete(*this);
+    DBAccess::startDelete<PlayList,DBAccess::PlaylistPID>(*this);
 }
 
 std::vector<Handlers::PlayList> Handlers::PlayList::getAll(){
@@ -626,5 +654,5 @@ std::vector<Handlers::PlayList> Handlers::PlayList::getAll(){
 }
 
 long Handlers::PlayList::countItems(){
-    return DBAccess::getCount<Handlers::PlayList>("playlists");
+    return DBAccess::getCount<Handlers::PlayList,DBAccess::PlaylistPID>("playlists");
 }
